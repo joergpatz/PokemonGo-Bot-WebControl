@@ -1,19 +1,9 @@
 import express from 'express';
-let router = express.Router();
 import dockerClient from '../lib/docker-client';
-import dockerBot from '../lib/docker-bot';
+import DockerBot from '../lib/DockerBot';
 
-// check whether we can get access to the docker remote API
-dockerClient.then(docker => {
-    docker.ping((err, pong) => {
-        if (err) {
-            console.error("[DOCKER] ping:" + err);
-            process.exit(1);
-        } else {
-            console.log("[DOCKER] ping:" + pong);
-        }
-    });
-});
+let router = express.Router();
+let bot1 = new DockerBot('bot1-pokego', dockerClient);
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
@@ -22,15 +12,27 @@ router.get('/', (req, res, next) => {
 
 router.get('/bot/start', (req, res, next) => {
 
-    /*dockerBot(dockerClient).then(result => {
-     console.log("Promise Success");
-     res.send("Bot started");
+    bot1.run().then(result => {
+         console.log("Promise Success", result);
+         res.send("Bot started");
      })
      .catch(err => {
-     console.error("Promise Failure:", err);
-     process.exit(1);
-     });*/
-    res.send("Bot is sleeping");
+        console.error("Promise Failure:", err);
+        process.exit(1);
+     });
+
+});
+
+router.get('/bot/stop', (req, res, next) => {
+
+    bot1.stop().then(result => {
+        console.log("Promise Success", result);
+        res.send("Bot stopped");
+    })
+    .catch(err => {
+        console.error("Promise Failure:", err);
+        process.exit(1);
+    });
 
 });
 
